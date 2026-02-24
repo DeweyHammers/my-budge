@@ -19,7 +19,7 @@ const filename: string = `${timestamp}_${name}.sql`;
 const migrationsDir: string = path.join(
   process.cwd(),
   "supabase",
-  "migrations"
+  "migrations",
 );
 
 // Ensure migrations directory exists
@@ -33,8 +33,8 @@ console.log("Generating migration SQL from Prisma schema...");
 try {
   // Use prisma migrate diff to get the SQL between the current DB state and the Prisma schema file
   const sql: string = execSync(
-    "npx prisma migrate diff --from-schema-datasource prisma/schema.prisma --to-schema-datamodel prisma/schema.prisma --script",
-    { encoding: "utf8" }
+    "npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script",
+    { encoding: "utf8" },
   );
 
   // Check if the migration is empty

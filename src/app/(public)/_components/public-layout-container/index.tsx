@@ -8,10 +8,10 @@ export default function PublicLayoutContainer({
 }: PublicLayoutContainerProps) {
   return (
     <Box
-      sx={{
+      sx={(theme) => ({
+        backgroundColor: theme.palette.action.disabledBackground,
         height: "100vh",
-        background: "linear-gradient(to bottom, #4169e1, #000000)",
-      }}
+      })}
     >
       {children}
     </Box>

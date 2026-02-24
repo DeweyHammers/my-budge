@@ -6,11 +6,10 @@ export default function Title({ fontSize, clickHome }: TitleProps) {
   return (
     <Typography
       variant="handwriting"
-      style={{
-        color: "#7FFFD4",
+      sx={{
+        color: "#d9d5ff",
         fontWeight: "bold",
         fontSize,
-        textShadow: "#7FFFD4 1px 0 7px",
         textDecoration: "none",
       }}
       component={clickHome ? Link : "span"}
