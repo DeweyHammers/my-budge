@@ -7,6 +7,8 @@ export const RESOURCES: ResourceProps[] = [
   {
     name: "plan",
     list: "/plan/list",
+    create: "plan/create",
+    edit: "plan/:id/edit",
     meta: {
       label: "Plan",
       icon: React.createElement(TableRowsIcon),

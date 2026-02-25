@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect } from "react";
-import { Box, Button, Typography } from "@mui/material";
-import { AccountFormProps } from "./types";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
+import { CategoryFormProps } from "./types";
 import { Create, Edit, SaveButton } from "@refinedev/mui";
 import { useForm } from "@refinedev/react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { accountsCreateSchema } from "./schemas";
+import { categoriesCreateSchema } from "./schemas";
 import {
   BaseRecord,
   HttpError,
   useCreate,
-  useGetIdentity,
   useNotification,
   useOne,
   useUpdate,
@@ -22,16 +21,17 @@ import {
   FormProvider,
   UseFormReturn,
 } from "react-hook-form";
-import defaultValues from "./default-values";
 import { TextField } from "@app/(protected)/_components/form/form-components";
 import { useRouter } from "next/navigation";
-import { Account, User } from "@generated/prisma/client";
+import { Category } from "@generated/prisma/client";
+import defaultValues from "./default-values";
+import { usePlanList } from "../../_hooks/use-plan-list";
 
-export default function AccountForm<
+export default function CategoryForm<
   TRecord extends BaseRecord = BaseRecord,
   TVariables extends FieldValues = FieldValues,
->({ action, id, isModal }: AccountFormProps) {
-  const { data: identity } = useGetIdentity<User>();
+>({ action, id, isModal }: CategoryFormProps) {
+  const { planAreFetching, planData } = usePlanList();
   const { open } = useNotification();
   const router = useRouter();
 
@@ -40,65 +40,65 @@ export default function AccountForm<
   };
 
   const {
-    query: { data: accountData },
-  } = useOne<Account, HttpError>({
-    resource: "accounts",
+    query: { data: categoryData },
+  } = useOne<Category, HttpError>({
+    resource: "categories",
     id,
   });
 
   const form = useForm<TRecord, HttpError, TVariables>({
     refineCoreProps: {
-      resource: "accounts",
+      resource: "categories",
       action,
       id,
       queryOptions: {
         enabled: false,
       },
     },
-    resolver: zodResolver(accountsCreateSchema as any),
+    resolver: zodResolver(categoriesCreateSchema as any),
     defaultValues: defaultValues as DefaultValues<TVariables>,
     mode: "onChange",
   });
 
-  const { mutateAsync: createAccount } = useCreate<Account>({
+  const { mutateAsync: createCategory } = useCreate<Category>({
     successNotification: false,
     errorNotification: false,
   });
-  const { mutateAsync: updateAccount } = useUpdate<Account>({
+  const { mutateAsync: updateCategory } = useUpdate<Category>({
     successNotification: false,
     errorNotification: false,
   });
 
   const handleOnSubmit = async (values: TVariables) => {
     try {
-      const accountsData = {
+      const categoryData = {
         updatedAt: new Date(),
       };
 
       if (action === "create") {
-        await createAccount({
-          resource: "accounts",
-          values: { ...accountsData, name: values.name, userId: identity?.id },
+        await createCategory({
+          resource: "categories",
+          values: { ...categoryData, name: values.name, planId: planData.id },
         });
       }
 
       if (action === "edit") {
-        await updateAccount({
+        await updateCategory({
           id,
-          resource: "accounts",
-          values: { ...accountsData, name: values.name, updatedAt: new Date() },
+          resource: "categories",
+          values: { ...categoryData, name: values.name, updatedAt: new Date() },
         });
       }
 
       open?.({
         type: "success",
-        message: `Account ${
+        message: `category ${
           action === "create" ? "created" : "updated"
         } successfully`,
         description: `${
           action === "create"
-            ? "Account has been created"
-            : "Account has been updated"
+            ? "Category has been created"
+            : "Category has been updated"
         }`,
       });
 
@@ -122,15 +122,15 @@ export default function AccountForm<
   } = form as UseFormReturn & typeof form;
 
   useEffect(() => {
-    if (accountData?.data) {
+    if (categoryData?.data) {
       reset({
-        name: accountData?.data.name || "",
+        name: categoryData?.data.name || "",
       });
     }
-  }, [accountData, reset]);
+  }, [categoryData, reset]);
 
   const Wrapper = action === "create" ? Create : Edit;
-  const title = action === "create" ? "Create new account" : "Edit account";
+  const title = action === "create" ? "Create new category" : "Edit category";
 
   const footerButtons = (
     <Box sx={{ display: "flex", gap: 2 }}>
@@ -142,7 +142,7 @@ export default function AccountForm<
         startIcon={null}
         onClick={handleSubmit(handleOnSubmit)}
       >
-        {action === "create" ? "Create account" : "Save"}
+        {action === "create" ? "Create category" : "Save"}
       </SaveButton>
     </Box>
   );
@@ -164,7 +164,11 @@ export default function AccountForm<
           onSubmit={handleSubmit(handleOnSubmit)}
           sx={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
-          <TextField name="name" label="Name" required />
+          {planAreFetching ? (
+            <CircularProgress />
+          ) : (
+            <TextField name="name" label="Name" required />
+          )}
         </Box>
       </Wrapper>
     </FormProvider>

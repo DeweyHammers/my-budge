@@ -1,6 +1,8 @@
 import { Box, Typography } from "@mui/material";
+import moneyFormatter from "@utils/helpers/money-formatter";
+import { AssignMoneyProps } from "./types";
 
-export default function AssignMoney() {
+export default function AssignMoney({ planData }: AssignMoneyProps) {
   return (
     <Box
       sx={(theme) => ({
@@ -10,8 +12,10 @@ export default function AssignMoney() {
         borderRadius: "10px",
       })}
     >
-      <Typography variant="h5">$0.00</Typography>
-      <Typography variant="overline">All Money Assigned</Typography>
+      <Typography variant="h5">{moneyFormatter(planData.assign)}</Typography>
+      <Typography variant="overline">
+        {Number(planData.assign) === 0 ? "All Money Assigned" : ""}
+      </Typography>
     </Box>
   );
 }
